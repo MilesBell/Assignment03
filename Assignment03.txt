@@ -1,0 +1,43 @@
+/*This is the third assignment
+We are writing some introductory queries using the database called: AdventureWorksDW2012
+*/
+
+SELECT LOWER(FirstName) AS first_name, UPPER(LastName) AS last_name /*1. Show top 10 employees with first name lowercase and last name capitalized,
+with last names starting with d, k, or, i, ordered by their base rate salary descending*/
+FROM Employee
+WHERE LastName LIKE '[dki]%'
+ORDER BY BaseRate DESC;
+
+SELECT OrderQuantity, DATENAME(dw,OrderDate) AS order_day, DATENAME(mm,OrderDate) AS order_month /*2. Show order quantity,
+ day, and month (each with respective calculated fields) of internet sales where the year is 2006, and product's unit price
+ is greater than $3,500*/
+FROM FactInternetSales
+WHERE DATENAME(yy,OrderDate)=2006 AND ProductKey IN(SELECT ProductKey
+													FROM Product
+													WHERE ListPrice>3500);
+
+SELECT COUNT(ModelName) AS all_products, AVG(DealerPrice) AS avg_dealer_price, MIN(DealerPrice) AS min_dealer_price, MAX(DealerPrice) AS max_dealer_price, AVG(ListPrice) AS avg_list_price, MIN(ListPrice) AS min_list_price, MAX(ListPrice) AS max_list_price, AVG(StandardCost) AS avg_std_cost, MIN(StandardCost) AS min_std_cost, MAX(StandardCost) AS max_std_cost
+FROM Product --3. show total counts of all products, with average, minimum, and maximum dealer price, listing price, and standard costs
+
+SELECT COUNT(SalesOrderNumber) AS sales_order_num_count, AVG(UnitPrice) AS avg_unit_price /*4. show total number of sales 
+order numbers (in field called 'sales_order_num_count'), and average unit price (in field called 'avg_unit_price'),
+where more than 60 units have been sold by groups of sales order numbers*/
+FROM FactResellerSales
+WHERE ProductKey IN(SELECT ProductKey 
+					FROM FactProductInventory
+					WHERE UnitsOut>60)
+GROUP BY SalesOrderNumber;
+
+SELECT FirstName, LastName --5. Show the first and last name where the customer ordered a red product and the unit price (reselling) exceeds $2000
+FROM Customer
+WHERE CustomerKey IN(SELECT CustomerKey 
+					FROM FactInternetSales
+					WHERE ProductKey IN(SELECT ProductKey
+										FROM Product
+										WHERE Color='Red'AND ProductKey IN(SELECT ProductKey
+																			FROM FactResellerSales
+																			WHERE UnitPrice>2000)));
+
+
+
+
